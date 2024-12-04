@@ -1,53 +1,43 @@
-import random
-import math
+def read_grid_from_file(file_name):
+    """
+    Reads the grid from the given file and returns it as a list of strings.
+    """
+    with open(file_name, "r") as file:
+        return [line.strip() for line in file.readlines()]
 
-def isPrime(n):
-    if n <= 1:
-        return False
-    if n == 2:
-        return True
-    if n % 2 == 0:
-        return False
-    for i in range(3, int(math.sqrt(n)) + 1, 2):
-        if n % i == 0:
+def count_x_pattern(grid):
+    """
+    Counts the occurrences of a specific "X" pattern in the grid.
+    """
+    num_rows = len(grid)
+    num_cols = len(grid[0])
+    pattern_count = 0
+
+    # Check if a position forms the desired "X" pattern
+    def matches_pattern(row, col):
+        # Ensure the position is within the valid range
+        if row - 1 < 0 or row + 1 >= num_rows or col - 1 < 0 or col + 1 >= num_cols:
             return False
-    return True
 
-  
-# Open the output file for writing
-output_file = open('output.txt', 'w')
+        # Define the diagonal elements
+        primary_diag = [grid[row - 1][col - 1], grid[row][col], grid[row + 1][col + 1]]
+        secondary_diag = [grid[row - 1][col + 1], grid[row][col], grid[row + 1][col - 1]]
 
-# Open the input file for reading
-with open("test.txt", "r") as input_file:
-    data = input_file.readlines()
-    total_cases = 0
-    line_no = 1
-    case_no = 0
-    for line in data:
-        word = line.split()
-        prime = 0
-        prime_list = list()
-        if len(word) == 1 and line_no == 1:
-            total_cases = int(word[0])
-        elif line_no > 1 and len(word) == 1:
-            digit = int(word[0])
-            if digit > 2:         
-                for i in range (digit, 1, -1):
-                    if isPrime(i):
-                        prime_list.append(i)
-                for i in range(len(prime_list) - 1):
-                    if (prime_list[i] - prime_list[i + 1]) in prime_list:
-                        prime += 1
-                
-            case_no += 1
-            out = f"Case #{case_no}: {prime}\n"
-            print(out)
-            output_file.write(out)
+        # Valid configurations for the diagonals
+        valid_config = {"MAS", "SAM"}
+        return ''.join(primary_diag) in valid_config and ''.join(secondary_diag) in valid_config
 
-        line_no += 1
+    # Loop through the grid to find all pattern matches
+    for row in range(num_rows):
+        for col in range(num_cols):
+            if matches_pattern(row, col):
+                pattern_count += 1
 
+    return pattern_count
 
-# Close the output file after writing
-output_file.close()
-
-
+# Main program
+if __name__ == "__main__":
+    input_file = "input.txt"  # Replace with your file name
+    grid = read_grid_from_file(input_file)
+    result = count_x_pattern(grid)
+    print(f"The X pattern appears {result} times in the grid.")
