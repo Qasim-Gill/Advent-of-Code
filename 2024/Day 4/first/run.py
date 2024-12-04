@@ -1,53 +1,46 @@
-import random
-import math
+import re
 
-def isPrime(n):
-    if n <= 1:
-        return False
-    if n == 2:
-        return True
-    if n % 2 == 0:
-        return False
-    for i in range(3, int(math.sqrt(n)) + 1, 2):
-        if n % i == 0:
-            return False
-    return True
+def count_word_occurrences(puzzle, word):
+    """Counts the occurrences of a word in a word search puzzle.
 
-  
-# Open the output file for writing
-output_file = open('output.txt', 'w')
+    Args:
+        puzzle: A list of strings representing the puzzle.
+        word: The word to search for.
 
-# Open the input file for reading
-with open("test.txt", "r") as input_file:
-    data = input_file.readlines()
-    total_cases = 0
-    line_no = 1
-    case_no = 0
-    for line in data:
-        word = line.split()
-        prime = 0
-        prime_list = list()
-        if len(word) == 1 and line_no == 1:
-            total_cases = int(word[0])
-        elif line_no > 1 and len(word) == 1:
-            digit = int(word[0])
-            if digit > 2:         
-                for i in range (digit, 1, -1):
-                    if isPrime(i):
-                        prime_list.append(i)
-                for i in range(len(prime_list) - 1):
-                    if (prime_list[i] - prime_list[i + 1]) in prime_list:
-                        prime += 1
-                
-            case_no += 1
-            out = f"Case #{case_no}: {prime}\n"
-            print(out)
-            output_file.write(out)
+    Returns:
+        The number of occurrences of the word.
+    """
 
-        line_no += 1
+    rows = len(puzzle)
+    cols = len(puzzle[0])
+    count = 0
 
+    # Check horizontal and vertical occurrences
+    for i in range(rows):
+        for j in range(cols - len(word) + 1):
+            if puzzle[i][j:j+len(word)] == word:
+                count += 1
 
-# Close the output file after writing
-output_file.close()
+    # Check diagonal occurrences (top-left to bottom-right)
+    for i in range(rows - len(word) + 1):
+        for j in range(cols - len(word) + 1):
+            if all(puzzle[i+k][j+k] == word[k] for k in range(len(word))):
+                count += 1
 
+    # Check diagonal occurrences (top-right to bottom-left)
+    for i in range(rows - len(word) + 1):
+        for j in range(len(word) - 1, cols):
+            if all(puzzle[i+k][j-k] == word[k] for k in range(len(word))):
+                count += 1
 
+    return count
+
+# Read the puzzle from the input file
+with open("input.txt", "r") as f:
+    puzzle = f.read().splitlines()
+
+# Count the occurrences of "XMAS"
+word = "XMAS"
+occurrences = count_word_occurrences(puzzle, word)
+
+print(f"The word '{word}' appears {occurrences} times in the puzzle.")
